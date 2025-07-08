@@ -66,6 +66,27 @@ function destroy {
   esac
 }
 
+function _container_restart(){
+  if [ $# -lt 1 ]; then
+    echo "Usage: restart_container CONTAINER_NAME [DOCKER_RUN_ARGS...]"
+    return 1
+  fi
+
+  local container_name="$1"
+  shift
+
+  if docker ps -a --filter "name=$container_name" | grep -q "$container_name"; then
+    echo "Container $container_name exists. Stopping and removing it..."
+    docker stop "$container_name"
+    docker rm "$container_name"
+  else
+    echo "Container $container_name does not exist. Creating new container..."
+  fi
+
+  echo "Starting container $container_name with provided arguments..."
+  docker run --name "$container_name" "$@"
+}
+
 function docker_create {
   if [ -z "$EXAMPLE" ]; then
     echo "Starting matchbox"
@@ -82,7 +103,7 @@ function docker_create {
     DATA_MOUNT="-v $PWD/examples:/var/lib/matchbox:Z -v $DIR/../examples/groups/$EXAMPLE:/var/lib/matchbox/groups:Z"
   fi
 
-  docker run --name matchbox \
+  _container_restart matchbox \
     -d \
     -p 8080:8080 \
     -p 8081:8081 \
@@ -92,7 +113,7 @@ function docker_create {
     quay.io/poseidon/matchbox:latest -address=0.0.0.0:8080 -log-level=debug $MATCHBOX_ARGS
 
   echo "Starting dnsmasq to provide DHCP/TFTP/DNS services"
-  docker run --name dnsmasq \
+  _container_restart dnsmasq \
     -d \
     --cap-add=NET_ADMIN \
     -v $PWD/contrib/dnsmasq/docker0.conf:/etc/dnsmasq.conf:Z \
