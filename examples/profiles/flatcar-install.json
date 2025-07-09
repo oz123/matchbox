@@ -11,7 +11,8 @@
       "flatcar.config.url=http://matchbox.example.com:8080/ignition?uuid=${uuid}&mac=${mac:hexhyp}",
       "flatcar.first_boot=yes",
       "flatcar.autologin",
-      "console=ttyS0"
+      "console=ttyS0",
+      "console=tty0"
     ]
   },
   "ignition_id": "flatcar-install.ign"
