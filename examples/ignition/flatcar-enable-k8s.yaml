@@ -1,0 +1,34 @@
+---
+variant: flatcar
+version: 1.0.0
+systemd:
+  units:
+    - name: systemd-sysext.service
+      enabled: true
+    - name: kubernetes-sysext.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Kubernetes System Extension
+        After=network-online.target
+        Wants=network-online.target
+        ConditionPathExists=!/etc/extensions/kubernetes.raw
+        
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStartPre=/usr/bin/mkdir -p /etc/extensions
+        ExecStart=/usr/bin/curl -L -o /etc/extensions/kubernetes.raw \
+          https://extensions.flatcar.org/extensions/kubernetes/kubernetes-v1.33.2-x86-64.raw
+        ExecStart=/usr/bin/systemd-sysext refresh
+        
+        [Install]
+        WantedBy=multi-user.target
+    
+passwd:
+  users:
+    - name: core
+      ssh_authorized_keys:
+        - ssh-ed25519 AAAA...        
+        - ssh-ed25519 AAAA...
+

@@ -1,0 +1,19 @@
+{
+  "id": "kubernetes-install",
+  "name": "kubernetes-install",
+  "boot": {
+    "kernel": "/assets/flatcar/4081.2.1/flatcar_production_pxe.vmlinuz",
+    "initrd": [
+      "/assets/flatcar/4081.2.1/flatcar_production_pxe_image.cpio.gz"
+    ],
+    "args": [
+      "initrd=flatcar_production_pxe_image.cpio.gz",
+      "flatcar.config.url=http://matchbox.example.com:8080/ignition?uuid=${uuid}&mac=${mac:hexhyp}",
+      "flatcar.first_boot=yes",
+      "flatcar.autologin",
+      "console=ttyS0",
+      "console=tty0"
+    ]
+  },
+  "ignition_id": "flatcar-install-k8s.ign"
+}

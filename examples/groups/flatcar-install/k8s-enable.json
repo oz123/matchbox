@@ -1,0 +1,5 @@
+{
+  "id": "kubernetes-enable",
+  "name": "kubernetes-enable",
+  "ignition_id": "flatcar-enable-k8s.ign"
+}
