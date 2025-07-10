@@ -13,12 +13,13 @@ systemd:
         After=network-online.target
         Wants=network-online.target
         ConditionPathExists=!/etc/extensions/kubernetes.raw
+        TimeoutStartSec=600
 
         [Service]
         Type=oneshot
         RemainAfterExit=yes
         ExecStartPre=/usr/bin/mkdir -p /etc/extensions
-        ExecStart=/usr/bin/curl -L -o /etc/extensions/kubernetes.raw \
+        ExecStart=/usr/bin/curl -L --retry 5 --retry-delay 10 --retry-max-time 300 -C - -o /etc/extensions/kubernetes.raw \
           https://extensions.flatcar.org/extensions/kubernetes/kubernetes-v1.33.2-x86-64.raw
         ExecStart=/usr/bin/systemd-sysext refresh
 
