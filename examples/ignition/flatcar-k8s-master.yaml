@@ -1,0 +1,98 @@
+---
+variant: flatcar
+version: 1.0.0
+systemd:
+  units:
+    - name: systemd-sysext.service
+      enabled: true
+    - name: kubernetes-sysext.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Kubernetes System Extension
+        After=network-online.target
+        Wants=network-online.target
+        ConditionPathExists=!/etc/extensions/kubernetes.raw
+        
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStartPre=/usr/bin/mkdir -p /etc/extensions
+        ExecStart=/usr/bin/curl -L -o /etc/extensions/kubernetes.raw \
+          https://extensions.flatcar.org/extensions/kubernetes/kubernetes-v1.33.2-x86-64.raw
+        ExecStart=/usr/bin/systemd-sysext refresh
+        
+        [Install]
+        WantedBy=multi-user.target
+    - name: kubeadm-init.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Initialize Kubernetes Master
+        After=network-online.target kubernetes-sysext.service containerd.service
+        Requires=network-online.target kubernetes-sysext.service containerd.service
+        ConditionPathExists=!/etc/kubernetes/admin.conf
+
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStartPre=/usr/bin/mkdir -p /etc/kubernetes
+        ExecStart=/usr/bin/kubeadm init --config=/opt/kubeadm.config
+        ExecStartPost=/usr/bin/mkdir -p /home/core/.kube
+        ExecStartPost=/usr/bin/cp /etc/kubernetes/admin.conf /home/core/.kube/config
+        ExecStartPost=/usr/bin/chown -R core:core /home/core/.kube
+
+        [Install]
+        WantedBy=multi-user.target
+    - name: install-cni.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Install Kubernetes CNI
+        After=kubeadm-init.service
+        Requires=kubeadm-init.service
+        ConditionPathExists=/etc/kubernetes/admin.conf
+
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        Environment=KUBECONFIG=/etc/kubernetes/admin.conf
+        ExecStart=/usr/bin/kubectl apply -f /opt/cni/calico.yaml
+
+        [Install]
+        WantedBy=multi-user.target
+storage:
+  files:
+    - path: "/opt/kubeadm.config"
+      mode: 0644
+      contents:
+        inline: |
+          ---
+          apiVersion: kubeadm.k8s.io/v1beta4
+          kind: InitConfiguration
+          bootstrapTokens:
+            - groups:
+                - system:bootstrappers:kubeadm:default-node-token
+              token: 5dbf43.ab5368d37ac52c49
+              ttl: 24h0m0s
+              usages:
+                - signing
+                - authentication
+          ---
+          apiVersion: kubeadm.k8s.io/v1beta4
+          kind: ClusterConfiguration
+          apiServer:
+            certSANs:
+              - "node1.example.com"
+              - "172.17.0.21"
+              - "node1"
+    - path: "/opt/cni/calico.yaml"
+      mode: 0644
+      contents:
+        source: "https://raw.githubusercontent.com/projectcalico/calico/v3.26.3/manifests/calico.yaml"
+passwd:
+  users:
+    - name: core
+      ssh_authorized_keys:
+        - ssh-ed25519 AAAA...        
+        - ssh-ed25519 AAAAsss...

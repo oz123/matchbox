@@ -8,13 +8,19 @@ storage:
       contents:
         inline: |
           #!/bin/bash -ex
-          curl --retry 10 --fail "http://matchbox.example.com:8080/ignition?os=installed&kubernetes=enabled" -o k8s-install.json
+          ip link show eth0 | awk '/ether/ {print $2}'
+          ROLE="node"
+          MAC=$(ip link show eth0 | awk '/ether/ {print $2}')
+          if [[ $MAC == "52:54:00:c3:61:77" ]]; then
+            ROLE="master"
+          fi
+          curl --retry 10 --fail "http://localhost:8080/ignition?os=installed&kubernetes=enabled&role=${ROLE}" -o k8s-enable.json
           flatcar-install \
             -d /dev/vda \
             -C stable \
             -V 4081.2.1 \
             -b http://matchbox.example.com:8080/assets/flatcar \
-            -i k8s-install.json
+            -i k8s-enable.json
           udevadm settle
           systemctl reboot
 systemd:

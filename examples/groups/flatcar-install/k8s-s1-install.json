@@ -1,10 +1,11 @@
 {
   "id": "k8s-stage-1",
-  "name": "Flatcar Kubernetes",
-  "profile": "kubernetes-enable",
+  "name": "Kubernetes Master",
+  "profile": "kubernetes-master",
   "selector": {
     "os": "installed",
-    "kubernetes": "enabled"
+    "kubernetes": "enabled",
+    "role": "master"
   },
   "metadata": {}
 }
