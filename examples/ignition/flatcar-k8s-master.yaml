@@ -83,9 +83,9 @@ storage:
           kind: ClusterConfiguration
           apiServer:
             certSANs:
-              - "node1.example.com"
-              - "172.17.0.21"
-              - "node1"
+              - "master.example.com"
+              - "172.17.0.23"
+              - "master"
     - path: "/opt/cni/calico.yaml"
       mode: 0644
       contents:
