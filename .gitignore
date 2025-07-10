@@ -37,3 +37,4 @@ tools/
 contrib/registry/data
 contrib/rpm/*.tar.gz
 
+*.sw[p,o]
