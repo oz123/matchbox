@@ -1,0 +1,11 @@
+{
+  "id": "k8s-stage-1-node",
+  "name": "Kubernetes Node",
+  "profile": "kubernetes-node",
+  "selector": {
+    "os": "installed",
+    "kubernetes": "enabled",
+    "role": "node"
+  },
+  "metadata": {}
+}
