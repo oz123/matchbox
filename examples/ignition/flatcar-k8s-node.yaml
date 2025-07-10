@@ -13,7 +13,7 @@ systemd:
         After=network-online.target
         Wants=network-online.target
         ConditionPathExists=!/etc/extensions/kubernetes.raw
-        
+
         [Service]
         Type=oneshot
         RemainAfterExit=yes
@@ -21,9 +21,11 @@ systemd:
         ExecStart=/usr/bin/curl -L -o /etc/extensions/kubernetes.raw \
           https://extensions.flatcar.org/extensions/kubernetes/kubernetes-v1.33.2-x86-64.raw
         ExecStart=/usr/bin/systemd-sysext refresh
-        
+
         [Install]
         WantedBy=multi-user.target
+    - name: kubelet.service
+      enabled: true
     - name: kubeadm-join.service
       enabled: true
       contents: |
@@ -32,13 +34,27 @@ systemd:
         After=network-online.target kubernetes-sysext.service containerd.service
         Requires=network-online.target kubernetes-sysext.service containerd.service
         ConditionPathExists=!/etc/kubernetes/kubelet.conf
-        
+
         [Service]
         Type=oneshot
         RemainAfterExit=yes
         ExecStartPre=/usr/bin/mkdir -p /etc/kubernetes
         ExecStart=/usr/bin/kubeadm join --config=/opt/kubeadm.node.config
-        
+
+        [Install]
+        WantedBy=multi-user.target
+    - name: set-hostname.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Set System Hostname
+        Before=kubernetes-sysext.service kubeadm-join.service
+
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=/usr/bin/hostnamectl set-hostname node
+
         [Install]
         WantedBy=multi-user.target
 storage:
