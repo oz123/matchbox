@@ -24,6 +24,9 @@ systemd:
         
         [Install]
         WantedBy=multi-user.target
+
+    - name: kubelet.service
+      enabled: true
     - name: kubeadm-init.service
       enabled: true
       contents: |
@@ -44,6 +47,7 @@ systemd:
 
         [Install]
         WantedBy=multi-user.target
+
     - name: install-cni.service
       enabled: true
       contents: |
@@ -58,6 +62,20 @@ systemd:
         RemainAfterExit=yes
         Environment=KUBECONFIG=/etc/kubernetes/admin.conf
         ExecStart=/usr/bin/kubectl apply -f /opt/cni/calico.yaml
+
+        [Install]
+        WantedBy=multi-user.target
+    - name: set-hostname.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Set System Hostname
+        Before=kubernetes-sysext.service kubeadm-init.service
+
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=/usr/bin/hostnamectl set-hostname master
 
         [Install]
         WantedBy=multi-user.target
