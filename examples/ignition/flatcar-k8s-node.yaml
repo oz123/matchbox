@@ -56,23 +56,6 @@ storage:
               unsafeSkipCAVerification: true
           nodeRegistration:
             name: node
-storage:
-  files:
-    - path: "/opt/kubeadm.config"
-      mode: 0644
-      contents:
-        inline: |
-          ---
-          apiVersion: kubeadm.k8s.io/v1beta4
-          kind: InitConfiguration
-          bootstrapTokens:
-            - groups:
-                - system:bootstrappers:kubeadm:default-node-token
-              token: 5dbf43.ab5368d37ac52c49
-              ttl: 24h0m0s
-              usages:
-                - signing
-                - authentication
 passwd:
   users:
     - name: core
