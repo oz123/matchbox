@@ -14,7 +14,7 @@ storage:
           if [[ $MAC == "52:54:00:c3:61:77" ]]; then
             ROLE="master"
           fi
-          curl --retry 10 --fail "http://localhost:8080/ignition?os=installed&kubernetes=enabled&role=${ROLE}" -o k8s-enable.json
+          curl --retry 10 --fail "http://matchbox.example.com:8080/ignition?os=installed&kubernetes=enabled&role=${ROLE}" -o k8s-enable.json
           flatcar-install \
             -d /dev/vda \
             -C stable \
