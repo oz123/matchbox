@@ -1,0 +1,5 @@
+{
+  "id": "kubernetes-master",
+  "name": "kubernetes-master",
+  "ignition_id": "flatcar-k8s-master.ign"
+}
