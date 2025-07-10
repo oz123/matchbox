@@ -1,0 +1,5 @@
+{
+  "id": "kubernetes-node",
+  "name": "kubernetes-node",
+  "ignition_id": "flatcar-k8s-node.ign"
+}
